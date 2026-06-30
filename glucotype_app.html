@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glucotype — Diabetes Risk Screening</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#F6F2EA;
+    --ink:#1B2A2E;
+    --navy:#16323A;
+    --line:#191919;
+    --rule:#D8CFBE;
+    --amber:#C2622B;
+    --amber-soft:#E9D3BC;
+    --safe:#2F6B4F;
+    --safe-soft:#D7E6DC;
+    --risk:#A6332B;
+    --risk-soft:#EFD6D2;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:48px 24px 100px;}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--line);
+    padding-bottom:18px;
+    margin-bottom:6px;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:50%;
+    border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;
+    flex-shrink:0;
+  }
+  .brand h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink);
+    opacity:0.55;
+    text-align:right;
+  }
+  .deck{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--navy);
+    opacity:0.8;
+    margin:18px 0 40px;
+    max-width:560px;
+    line-height:1.5;
+  }
+
+  /* ---------- Layout ---------- */
+  .grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:28px;align-items:start;}
+  @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:2px;
+  }
+  .panel-head{
+    padding:16px 22px;
+    border-bottom:1px solid var(--rule);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .panel-head h2{
+    font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin:0;
+  }
+  .panel-head span{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink);opacity:0.45;
+  }
+  .panel-body{padding:22px;}
+
+  /* ---------- Form ---------- */
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  @media (max-width:520px){ .field-row{grid-template-columns:1fr;} }
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{
+    font-size:12px;font-weight:600;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .field label .unit{font-family:'IBM Plex Mono',monospace;font-weight:400;opacity:0.5;font-size:10px;}
+  .field input{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    padding:9px 10px;
+    border:1px solid var(--rule);
+    border-radius:2px;
+    background:#FBF9F4;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  .field input:focus{border-color:var(--navy);background:#fff;}
+  .field-help{font-size:10.5px;opacity:0.5;line-height:1.3;}
+
+  .preset-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  .preset-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    padding:6px 11px;
+    border:1px solid var(--rule);
+    border-radius:20px;
+    background:none;
+    cursor:pointer;
+    color:var(--ink);
+    opacity:0.7;
+    transition:all .15s;
+  }
+  .preset-btn:hover{opacity:1;border-color:var(--navy);}
+
+  .submit-btn{
+    width:100%;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    padding:14px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    border-radius:2px;
+    cursor:pointer;
+    letter-spacing:0.01em;
+    transition:background .15s;
+  }
+  .submit-btn:hover{background:#0e2128;}
+
+  /* ---------- Result panel ---------- */
+  .result-empty{
+    padding:50px 24px;
+    text-align:center;
+    color:var(--ink);
+    opacity:0.45;
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+
+  .gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0 4px;}
+  .gauge-pct{
+    font-family:'Fraunces',serif;
+    font-size:46px;
+    font-weight:600;
+    margin-top:-58px;
+  }
+  .gauge-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    opacity:0.55;
+    margin-top:2px;
+  }
+  .verdict-chip{
+    margin:16px auto 0;
+    display:inline-block;
+    padding:5px 14px;
+    border-radius:20px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:0.03em;
+  }
+  .chip-low{background:var(--safe-soft);color:var(--safe);}
+  .chip-mod{background:var(--amber-soft);color:var(--amber);}
+  .chip-high{background:var(--risk-soft);color:var(--risk);}
+
+  .divider{height:1px;background:var(--rule);margin:22px 0;}
+
+  .driver{margin-bottom:11px;}
+  .driver-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+  .driver-top .dname{font-weight:600;}
+  .driver-top .dval{font-family:'IBM Plex Mono',monospace;opacity:0.55;}
+  .driver-bar-track{height:6px;background:#EFEAE0;border-radius:3px;overflow:hidden;position:relative;}
+  .driver-bar-mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--rule);}
+  .driver-bar-fill{height:100%;border-radius:3px;position:absolute;top:0;}
+
+  .note{
+    font-size:11px;
+    line-height:1.6;
+    opacity:0.5;
+    margin-top:24px;
+    padding-top:16px;
+    border-top:1px solid var(--rule);
+  }
+
+  footer{
+    margin-top:40px;
+    padding-top:18px;
+    border-top:2px solid var(--line);
+    display:flex;justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    opacity:0.5;
+    flex-wrap:wrap;gap:8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">Gx</div>
+      <h1>Glucotype</h1>
+    </div>
+    <div class="tag">Logistic Regression<br>Screening Tool</div>
+  </header>
+
+  <p class="deck">A statistical screening model trained on 768 clinical records, estimating diabetes likelihood from eight standard diagnostic measurements.</p>
+
+  <div class="grid">
+    <!-- FORM PANEL -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Patient Measurements</h2>
+        <span>08 FIELDS</span>
+      </div>
+      <div class="panel-body">
+
+        <div class="preset-row">
+          <button class="preset-btn" onclick="loadPreset('low')">Load low-risk example</button>
+          <button class="preset-btn" onclick="loadPreset('high')">Load high-risk example</button>
+          <button class="preset-btn" onclick="loadPreset('clear')">Clear all</button>
+        </div>
+
+        <form id="riskForm">
+          <div class="field-row">
+            <div class="field">
+              <label>Pregnancies <span class="unit">count</span></label>
+              <input type="number" id="Pregnancies" min="0" max="20" value="2">
+            </div>
+            <div class="field">
+              <label>Age <span class="unit">years</span></label>
+              <input type="number" id="Age" min="1" max="120" value="33">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Glucose <span class="unit">mg/dL</span></label>
+              <input type="number" id="Glucose" min="0" max="300" value="120">
+              <span class="field-help">Plasma glucose, 2-hr oral tolerance test</span>
+            </div>
+            <div class="field">
+              <label>Blood Pressure <span class="unit">mm Hg</span></label>
+              <input type="number" id="BloodPressure" min="0" max="200" value="72">
+              <span class="field-help">Diastolic blood pressure</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>BMI <span class="unit">kg/m²</span></label>
+              <input type="number" id="BMI" min="0" max="80" step="0.1" value="32.0">
+            </div>
+            <div class="field">
+              <label>Skin Thickness <span class="unit">mm</span></label>
+              <input type="number" id="SkinThickness" min="0" max="100" value="29">
+              <span class="field-help">Triceps skinfold thickness</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Insulin <span class="unit">mu U/mL</span></label>
+              <input type="number" id="Insulin" min="0" max="900" value="125">
+              <span class="field-help">2-hour serum insulin</span>
+            </div>
+            <div class="field">
+              <label>Pedigree Function <span class="unit">score</span></label>
+              <input type="number" id="DiabetesPedigreeFunction" min="0" max="3" step="0.01" value="0.47">
+              <span class="field-help">Diabetes likelihood from family history</span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">Run prediction</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- RESULT PANEL -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Risk Estimate</h2>
+        <span id="modelTag">AUC 0.81</span>
+      </div>
+      <div class="panel-body" id="resultBody">
+        <div class="result-empty">Enter measurements and run the<br>prediction to see a risk estimate.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Trained on the Pima Indians Diabetes Dataset (n=768) · scikit-learn LogisticRegression</span>
+    <span>For educational demonstration only — not a medical diagnosis</span>
+  </footer>
+</div>
+
+<script>
+// ---- Exact trained model parameters (from scikit-learn) ----
+const MODEL = {
+  features: ["Pregnancies","Glucose","BloodPressure","SkinThickness","Insulin","BMI","DiabetesPedigreeFunction","Age"],
+  mean: [3.8192182410423454,121.67100977198697,72.1400651465798,29.042345276872965,137.70521172638436,32.44674267100978,0.477428338762215,33.36644951140065],
+  scale: [3.311448216586372,29.979350764655706,12.2651192609104,8.884611281688818,78.70059996835236,6.8185831159432295,0.33003119077476745,11.82379790254742],
+  coef: [0.37750234525727977,1.182511437316831,-0.04406579601479802,0.02822518600825236,-0.0661574631885328,0.6887347098715282,0.23338637833551307,0.14779848428119313],
+  intercept: -0.8721553689217155
+};
+
+const PRESETS = {
+  low:  {Pregnancies:1, Glucose:92, BloodPressure:68, SkinThickness:22, Insulin:78, BMI:24.5, DiabetesPedigreeFunction:0.22, Age:24},
+  high: {Pregnancies:7, Glucose:182, BloodPressure:88, SkinThickness:38, Insulin:280, BMI:41.2, DiabetesPedigreeFunction:1.15, Age:52},
+  clear:{Pregnancies:0, Glucose:0, BloodPressure:0, SkinThickness:0, Insulin:0, BMI:0, DiabetesPedigreeFunction:0, Age:0}
+};
+
+function loadPreset(name){
+  const p = PRESETS[name];
+  MODEL.features.forEach(f => document.getElementById(f).value = p[f]);
+}
+
+function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+
+function predict(values){
+  let z = MODEL.intercept;
+  let contributions = [];
+  MODEL.features.forEach((f,i) => {
+    const scaled = (values[f] - MODEL.mean[i]) / MODEL.scale[i];
+    const contribution = scaled * MODEL.coef[i];
+    z += contribution;
+    contributions.push({feature:f, value:values[f], contribution});
+  });
+  const prob = sigmoid(z);
+  return {prob, contributions};
+}
+
+const FEATURE_LABELS = {
+  Pregnancies:"Pregnancies", Glucose:"Glucose", BloodPressure:"Blood Pressure",
+  SkinThickness:"Skin Thickness", Insulin:"Insulin", BMI:"BMI",
+  DiabetesPedigreeFunction:"Pedigree Function", Age:"Age"
+};
+
+document.getElementById('riskForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const values = {};
+  MODEL.features.forEach(f => values[f] = parseFloat(document.getElementById(f).value) || 0);
+
+  const {prob, contributions} = predict(values);
+  renderResult(prob, contributions);
+});
+
+function renderResult(prob, contributions){
+  const pct = Math.round(prob*100);
+  let verdictClass, verdictText;
+  if(prob < 0.33){ verdictClass='chip-low'; verdictText='Lower likelihood'; }
+  else if(prob < 0.6){ verdictClass='chip-mod'; verdictText='Moderate likelihood'; }
+  else { verdictClass='chip-high'; verdictText='Higher likelihood'; }
+
+  const circumference = 2*Math.PI*54;
+  const dash = circumference * prob;
+  const gaugeColor = prob < 0.33 ? 'var(--safe)' : (prob < 0.6 ? 'var(--amber)' : 'var(--risk)');
+
+  // sort contributions by absolute magnitude, biggest first
+  const sorted = [...contributions].sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution));
+  const maxAbs = Math.max(...sorted.map(c=>Math.abs(c.contribution)), 0.01);
+
+  let driversHtml = '';
+  sorted.forEach(c => {
+    const pctWidth = Math.abs(c.contribution)/maxAbs*50;
+    const isPos = c.contribution >= 0;
+    const fillColor = isPos ? 'var(--risk)' : 'var(--safe)';
+    const side = isPos ? `left:50%;width:${pctWidth}%;` : `right:50%;width:${pctWidth}%;`;
+    driversHtml += `
+      <div class="driver">
+        <div class="driver-top">
+          <span class="dname">${FEATURE_LABELS[c.feature]}</span>
+          <span class="dval">${c.value}</span>
+        </div>
+        <div class="driver-bar-track">
+          <div class="driver-bar-mid"></div>
+          <div class="driver-bar-fill" style="${side}background:${fillColor};"></div>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('resultBody').innerHTML = `
+    <div class="gauge-wrap">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="54" fill="none" stroke="#EFEAE0" stroke-width="12"/>
+        <circle cx="80" cy="80" r="54" fill="none" stroke="${gaugeColor}" stroke-width="12"
+          stroke-dasharray="${dash} ${circumference}" stroke-linecap="round"
+          transform="rotate(-90 80 80)" style="transition:stroke-dasharray .6s ease;"/>
+      </svg>
+      <div class="gauge-pct">${pct}%</div>
+      <div class="gauge-label">Estimated probability</div>
+      <div class="verdict-chip ${verdictClass}">${verdictText}</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;opacity:0.55;margin-bottom:14px;">
+      What's driving this estimate
+    </div>
+    ${driversHtml}
+
+    <div class="note">
+      Bars to the right (red) push the estimate toward higher risk; bars to the left (green) push it lower. Based on a logistic regression model with 70.8% test accuracy and 0.81 ROC-AUC, trained on the Pima Indians Diabetes Dataset. This tool is for educational use only and does not constitute medical advice.
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
